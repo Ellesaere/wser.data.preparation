@@ -8,7 +8,6 @@
 #' @examples
 #' dt <- data.table(x = 1:10, y = rnorm(10))
 #' column_info(dt)
-NULL
 
 column_info <- function(dt, corr_variable = NULL) {
   # Convert to data.table if not already one
