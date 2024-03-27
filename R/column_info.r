@@ -4,11 +4,12 @@
 #' @param dt A data.table or data frame.
 #' @param corr_variable An optional string specifying a column name to calculate correlations with.
 #' @return A data.table with information on each column.
-#' @export
+
 #' @examples
 #' dt <- data.table(x = 1:10, y = rnorm(10))
 #' column_info(dt)
 
+#' @export
 column_info <- function(dt, corr_variable = NULL) {
   # Convert to data.table if not already one
   if (!inherits(dt, "data.table")) {
