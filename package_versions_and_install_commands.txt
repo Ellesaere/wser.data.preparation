@@ -1,0 +1,4 @@
+# R version: 4.3.0
+remotes::install_version('devtools', version = 'c(2, 4, 5)')
+remotes::install_version('data.table', version = 'c(1, 15, 0)')
+remotes::install_version('haven', version = 'c(2, 5, 4)')
