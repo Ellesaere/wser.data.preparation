@@ -7,16 +7,48 @@
 column_info(dt, corr_variable = NULL, by = NULL)
 }
 \arguments{
-\item{dt}{A data.table or data frame.}
+\item{dt}{A data.table or data frame to analyze.}
 
-\item{corr_variable}{An optional string specifying a column name to calculate correlations with.}
+\item{corr_variable}{An optional string specifying the name of a column with which to calculate
+correlations for numeric columns. This parameter is ignored for non-numeric columns.}
 
-\item{by}{An optional vector of one or two column names to group the data by.}
+\item{by}{An optional character vector specifying one or two column names by which to group the data before analysis.
+If provided, statistics are calculated within each group, and the output includes a \code{Grouped_by} column
+showing the grouping variables and their values for each row.}
 }
 \value{
-A data.table with information on each column, optionally grouped.
+Returns a data.table containing statistics for each column in the input data.
+For numeric columns, statistics include the mean, standard deviation, maximum, minimum, and number of observations.
+The type of variable (e.g., continuous, discrete) and distribution characteristics are also provided.
+If \code{corr_variable} is specified, the correlation of each numeric column with the specified column is included.
+The output includes a \code{Grouped_by} column if the data is grouped.
 }
 \description{
-This function returns a data.table with information about each column in a provided data table,
-optionally grouped by one or two variables.
+Analyzes a given data table or frame, providing detailed information about each column.
+The function calculates statistics like mean, standard deviation, maximum, and minimum values for numeric columns.
+For categorical columns, it identifies the type and distribution characteristics. Optionally,
+it calculates correlations with a specified column. It supports grouping by one or two variables,
+presenting grouped analyses within the output.
+}
+\details{
+This function is particularly useful for exploratory data analysis, allowing for a quick overview
+of the data structure, including basic statistics and correlations. Grouping functionality enables
+more granular analysis based on specified segments of the data.
+}
+\examples{
+\dontrun{
+  library(data.table)
+  dt <- data.table(id = 1:4, 
+                   score = c(23, 42, 16, 8), 
+                   category = factor(c("A", "B", "A", "B")), 
+                   value = rnorm(4))
+  # Basic usage without grouping
+  column_info(dt, corr_variable = "score")
+  
+  # With grouping by a single variable
+  column_info(dt, by = "category")
+  
+  # Grouping by two variables and calculating correlation
+  column_info(dt, corr_variable = "score", by = c("category", "id"))
+}
 }
