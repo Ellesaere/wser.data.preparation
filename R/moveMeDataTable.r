@@ -1,3 +1,5 @@
+library(data.table)
+
 #' Move Columns in a Data Table
 #'
 #' This function rearranges the columns of a data.table based on specified criteria. 

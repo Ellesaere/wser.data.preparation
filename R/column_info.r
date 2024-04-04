@@ -1,3 +1,5 @@
+library(data.table)
+
 #' Column Information with Grouping
 #'
 #' Analyzes a given data table or frame, providing detailed information about each column. 
@@ -40,11 +42,46 @@
 #' @importFrom data.table rbindlist setcolorder
 #' 
 column_info <- function(dt, corr_variable = NULL, by = NULL) {
+
   # Convert to data.table if not already one
   if (!inherits(dt, "data.table")) {
     dt <- as.data.table(dt)
   }
   
+  clean_column_names <- function(names) {
+    gsub("[[:space:]]|[^[:alnum:]_]", "", names)
+  }
+  
+  # Clean all column names
+  setnames(dt, old = names(dt), new = clean_column_names(names(dt)))
+  
+  # Clean 'by' and 'corr_variable' parameters
+  if (!is.null(by)) by <- clean_column_names(by)
+  if (!is.null(corr_variable)) corr_variable <- clean_column_names(corr_variable)
+
+  # Improved conv_to_num_check function
+  conv_to_num_check <- function(z, tolerance = 0.95) {
+    if (!is.character(z)) return(FALSE)
+    conversion_success <- suppressWarnings(!is.na(as.numeric(z)))
+    proportion_numeric <- mean(conversion_success, na.rm = TRUE)
+    return(proportion_numeric > tolerance)
+  }
+
+  # Function to conditionally convert character columns to numeric
+  convert_columns_to_numeric <- function(dt, tolerance = 0.95) {
+    for (col_name in names(dt)) {
+      column <- dt[[col_name]]
+      if (is.character(column) && conv_to_num_check(column, tolerance)) {
+        # Warning about potential NA values due to conversion failures
+        if (anyNA(as.numeric(column))) {
+          warning(sprintf("Conversion of column '%s' to numeric will introduce NA values for non-numeric data.", col_name))
+        }
+        dt[[col_name]] <- as.numeric(column)
+      }
+    }
+    return(dt)
+  }
+
   # Validate 'by' parameter
   if (!is.null(by) && all(by %in% names(dt))) {
     dt <- dt[, .(data = list(.SD)), by = by]
@@ -155,6 +192,12 @@ column_info <- function(dt, corr_variable = NULL, by = NULL) {
         NA # Return NA if column has only NAs or is not numeric/logical
       }
 
+      col_non_zeros <- if (is_numeric_or_logical) {
+        sum(col_data != 0, na.rm = TRUE) # Count of non-zeros, ignoring NAs
+      } else {
+        NA # NA for non-numeric and non-logical columns
+      }
+
       # Append the 'Grouped_by' information and rest of column info
       info_list[[col_name]] <- list(
         Grouped_by = group_name,
@@ -164,6 +207,7 @@ column_info <- function(dt, corr_variable = NULL, by = NULL) {
         Max = as.numeric(col_max),
         Min = as.numeric(col_min),
         Observations = as.integer(col_nobs),
+        NonZeroCount = as.integer(col_non_zeros),        
         VariableType = as.character(variable_type),
         DistributionType = as.character(dist_type),
         Class = as.character(paste(col_classes, collapse = ", ")),
@@ -177,5 +221,9 @@ column_info <- function(dt, corr_variable = NULL, by = NULL) {
   
   # Combine the information for all groups and return
   info_dt <- rbindlist(grouped_info_list, use.names = TRUE)
+
+  # Dynamic columns
+  setnames(info_dt, old="Correlation", new=corr_key)
+
   return(info_dt)
 }
