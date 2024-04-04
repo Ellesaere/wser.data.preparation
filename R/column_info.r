@@ -1,5 +1,3 @@
-library(data.table)
-
 #' Column Information with Grouping
 #'
 #' This function returns a data.table with information about each column in a provided data table,
