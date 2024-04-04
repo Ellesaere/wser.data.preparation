@@ -2,22 +2,21 @@
 % Please edit documentation in R/column_info.R
 \name{column_info}
 \alias{column_info}
-\title{Column Information}
+\title{Column Information with Grouping}
 \usage{
-column_info(dt, corr_variable = NULL)
+column_info(dt, corr_variable = NULL, by = NULL)
 }
 \arguments{
 \item{dt}{A data.table or data frame.}
 
 \item{corr_variable}{An optional string specifying a column name to calculate correlations with.}
+
+\item{by}{An optional vector of one or two column names to group the data by.}
 }
 \value{
-A data.table with information on each column.
+A data.table with information on each column, optionally grouped.
 }
 \description{
-This function returns a data.table with information about each column in a provided data table.
-}
-\examples{
-dt <- data.table(x = 1:10, y = rnorm(10))
-column_info(dt)
+This function returns a data.table with information about each column in a provided data table,
+optionally grouped by one or two variables.
 }
