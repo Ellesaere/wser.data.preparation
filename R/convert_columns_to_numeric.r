@@ -23,10 +23,16 @@ library(data.table)
 
 conv_to_num_check <- function(z, tolerance = 0.95) {
   if (!is.character(z)) return(FALSE)
-  conversion_success <- suppressWarnings(!is.na(as.numeric(z)))
+  
+  # Suppress warnings and check for numeric-convertible values, treating NA as numeric-like
+  conversion_success <- suppressWarnings(!is.na(as.numeric(z)) | is.na(z))
+  
+  # Calculate the proportion of numeric-like values
   proportion_numeric <- mean(conversion_success, na.rm = TRUE)
-  return(proportion_numeric > tolerance)
+  
+  return(proportion_numeric >= tolerance)
 }
+
 
 #' Convert Character Columns to Numeric Where Applicable
 #'

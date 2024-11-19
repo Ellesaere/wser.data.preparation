@@ -4,7 +4,7 @@
 \alias{column_info}
 \title{Column Information with Grouping}
 \usage{
-column_info(dt, corr_variable = NULL, by = NULL)
+column_info(dt, corr_variable = NULL, by = NULL, rounding_digits = 2)
 }
 \arguments{
 \item{dt}{A data.table or data frame to analyze.}
