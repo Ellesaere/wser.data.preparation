@@ -2,54 +2,62 @@
 #'
 #' This function reads all files in a specified directory that match the provided file extensions
 #' and loads them into R as a named list. Each list element is named after the file (without extension),
-#' and the file is read using the appropriate method based on its extension.
+#' and optionally includes sheet names for Excel files. File and sheet names can be cleaned (spaces replaced with underscores).
+#'
 #' @name read_files_from_path
-#' @param path Character. The path to the folder containing the files. Backslashes (`\\`) are supported.
-#' @param extensions Character vector. A vector of file extensions (without dots) to read, such as `c("xlsx", "csv")`.
+#' @param path Character. The path to the folder containing the files.
+#' @param extensions Character vector. File extensions to include (e.g., c("xlsx", "csv")).
+#' @param add_all_tabs Logical. If TRUE, reads all sheets from Excel files and names list entries using file + sheet name.
+#' @param clean Logical. If TRUE, replaces spaces in names with underscores.
 #'
-#' @return A named list of data frames or tibbles, one for each file. The names correspond to the original filenames (without extensions).
-#'
-#' @details
-#' Supported file extensions and their readers:
-#' \itemize{
-#'   \item \code{csv} - Read using \code{read.csv()}
-#'   \item \code{xlsx}, \code{xls} - Read using \code{readxl::read_excel()}
-#' }
-#' Files with unsupported extensions will result in an error.
+#' @return A named list of data frames or tibbles.
 #'
 #' @examples
 #' \dontrun{
-#' data_list <- read_files_from_path("W:/PROJECTS/MESN-WSER_2025/InitialData/", extensions = c("csv", "xlsx"))
+#' data_list <- read_files_from_path("data/", extensions = c("csv", "xlsx"), add_all_tabs = TRUE, clean = TRUE)
 #' }
 #'
-#' @importFrom readxl read_excel
+#' @importFrom readxl read_excel excel_sheets
 #' @importFrom tools file_path_sans_ext file_ext
 #' @export
-#' 
-library(readxl)
-library(tools)
-read_files_from_path <- function(path, extensions = c("xlsx", "csv")) {
-  # Normalize the path
+read_files_from_path <- function(path, extensions = c("xlsx", "csv"), add_all_tabs = FALSE, clean = FALSE) {
+  # Normalize path
   path <- normalizePath(path, winslash = "\\", mustWork = FALSE)
   if (!grepl("[/\\\\]$", path)) path <- paste0(path, "\\")
 
-  # Create file pattern for matching
+  # Create pattern and list files
   pattern <- paste0("\\.(", paste(extensions, collapse = "|"), ")$", collapse = "")
   files <- list.files(path, pattern = pattern, full.names = TRUE)
 
-  # Read each file based on extension
-  data_list <- lapply(files, function(file) {
-    ext <- tolower(file_ext(file))
-    switch(ext,
-           "csv" = read.csv(file, stringsAsFactors = FALSE),
-           "xlsx" = read_excel(file),
-           "xls"  = read_excel(file),
-           stop(paste("Unsupported file type:", ext))
-    )
-  })
+  data_list <- list()
 
-  # Name the list using file names (without extensions)
-  names(data_list) <- file_path_sans_ext(basename(files))
+  for (file in files) {
+    ext <- tolower(file_ext(file))
+    file_base <- file_path_sans_ext(basename(file))
+
+    if (ext == "csv") {
+      name <- file_base
+      if (clean) name <- gsub(" ", "_", name)
+      data_list[[name]] <- read.csv(file, stringsAsFactors = FALSE)
+
+    } else if (ext %in% c("xlsx", "xls")) {
+      if (add_all_tabs) {
+        sheets <- excel_sheets(file)
+        for (sheet in sheets) {
+          name <- paste(file_base, sheet, sep = "_")
+          if (clean) name <- gsub(" ", "_", name)
+          data_list[[name]] <- read_excel(file, sheet = sheet)
+        }
+      } else {
+        name <- file_base
+        if (clean) name <- gsub(" ", "_", name)
+        data_list[[name]] <- read_excel(file)
+      }
+
+    } else {
+      stop(paste("Unsupported file type:", ext))
+    }
+  }
 
   return(data_list)
 }
