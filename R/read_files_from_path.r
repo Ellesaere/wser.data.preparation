@@ -3,7 +3,7 @@
 #' This function reads all files in a specified directory that match the provided file extensions
 #' and loads them into R as a named list. Each list element is named after the file (without extension),
 #' and the file is read using the appropriate method based on its extension.
-#'
+#' @name read_files_from_path
 #' @param path Character. The path to the folder containing the files. Backslashes (`\\`) are supported.
 #' @param extensions Character vector. A vector of file extensions (without dots) to read, such as `c("xlsx", "csv")`.
 #'

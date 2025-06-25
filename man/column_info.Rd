@@ -4,17 +4,17 @@
 \alias{column_info}
 \title{Column Information with Grouping}
 \usage{
-column_info(dt, corr_variable = NULL, by = NULL, rounding_digits = 2)
+column_info(df, corr_variable = NULL, by = NULL)
 }
 \arguments{
-\item{dt}{A data.table or data frame to analyze.}
-
 \item{corr_variable}{An optional string specifying the name of a column with which to calculate
 correlations for numeric columns. This parameter is ignored for non-numeric columns.}
 
 \item{by}{An optional character vector specifying one or two column names by which to group the data before analysis.
 If provided, statistics are calculated within each group, and the output includes a \code{Grouped_by} column
 showing the grouping variables and their values for each row.}
+
+\item{dt}{A data.table or data frame to analyze.}
 }
 \value{
 Returns a data.table containing statistics for each column in the input data.
