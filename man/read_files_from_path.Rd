@@ -3,30 +3,34 @@
 \name{read_files_from_path}
 \alias{read_files_from_path}
 \title{Read Multiple Data Files from a Directory into a Named List}
+\usage{
+read_files_from_path(
+  path,
+  extensions = c("xlsx", "csv"),
+  add_all_tabs = FALSE,
+  clean = FALSE
+)
+}
 \arguments{
-\item{path}{Character. The path to the folder containing the files. Backslashes (\verb{\\\\}) are supported.}
+\item{path}{Character. The path to the folder containing the files.}
 
-\item{extensions}{Character vector. A vector of file extensions (without dots) to read, such as \code{c("xlsx", "csv")}.}
+\item{extensions}{Character vector. File extensions to include (e.g., c("xlsx", "csv")).}
+
+\item{add_all_tabs}{Logical. If TRUE, reads all sheets from Excel files and names list entries using file + sheet name.}
+
+\item{clean}{Logical. If TRUE, replaces spaces in names with underscores.}
 }
 \value{
-A named list of data frames or tibbles, one for each file. The names correspond to the original filenames (without extensions).
+A named list of data frames or tibbles.
 }
 \description{
 This function reads all files in a specified directory that match the provided file extensions
 and loads them into R as a named list. Each list element is named after the file (without extension),
-and the file is read using the appropriate method based on its extension.
-}
-\details{
-Supported file extensions and their readers:
-\itemize{
-\item \code{csv} - Read using \code{read.csv()}
-\item \code{xlsx}, \code{xls} - Read using \code{readxl::read_excel()}
-}
-Files with unsupported extensions will result in an error.
+and optionally includes sheet names for Excel files. File and sheet names can be cleaned (spaces replaced with underscores).
 }
 \examples{
 \dontrun{
-data_list <- read_files_from_path("W:/PROJECTS/MESN-WSER_2025/InitialData/", extensions = c("csv", "xlsx"))
+data_list <- read_files_from_path("data/", extensions = c("csv", "xlsx"), add_all_tabs = TRUE, clean = TRUE)
 }
 
 }
