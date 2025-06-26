@@ -18,7 +18,7 @@ read_files_from_path(
 
 \item{add_all_tabs}{Logical. If TRUE, reads all sheets from Excel files and names list entries using file + sheet name.}
 
-\item{clean}{Logical. If TRUE, replaces spaces in names with underscores.}
+\item{clean}{Logical. If TRUE, cleans names: replaces & with \emph{and} and all other symbols with _.}
 }
 \value{
 A named list of data frames or tibbles.
@@ -26,7 +26,7 @@ A named list of data frames or tibbles.
 \description{
 This function reads all files in a specified directory that match the provided file extensions
 and loads them into R as a named list. Each list element is named after the file (without extension),
-and optionally includes sheet names for Excel files. File and sheet names can be cleaned (spaces replaced with underscores).
+and optionally includes sheet names for Excel files. File and sheet names can be cleaned (symbols replaced).
 }
 \examples{
 \dontrun{

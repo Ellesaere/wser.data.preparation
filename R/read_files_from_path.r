@@ -2,13 +2,13 @@
 #'
 #' This function reads all files in a specified directory that match the provided file extensions
 #' and loads them into R as a named list. Each list element is named after the file (without extension),
-#' and optionally includes sheet names for Excel files. File and sheet names can be cleaned (spaces replaced with underscores).
+#' and optionally includes sheet names for Excel files. File and sheet names can be cleaned (symbols replaced).
 #'
 #' @name read_files_from_path
 #' @param path Character. The path to the folder containing the files.
 #' @param extensions Character vector. File extensions to include (e.g., c("xlsx", "csv")).
 #' @param add_all_tabs Logical. If TRUE, reads all sheets from Excel files and names list entries using file + sheet name.
-#' @param clean Logical. If TRUE, replaces spaces in names with underscores.
+#' @param clean Logical. If TRUE, cleans names: replaces & with _and_ and all other symbols with _.
 #'
 #' @return A named list of data frames or tibbles.
 #'
@@ -29,6 +29,15 @@ read_files_from_path <- function(path, extensions = c("xlsx", "csv"), add_all_ta
   pattern <- paste0("\\.(", paste(extensions, collapse = "|"), ")$", collapse = "")
   files <- list.files(path, pattern = pattern, full.names = TRUE)
 
+  # Helper: Clean name safely
+  clean_name <- function(name) {
+    name <- gsub("&", "_and_", name)
+    name <- gsub("[^[:alnum:]]+", "_", name)         # Replace all non-alphanumeric with "_"
+    name <- gsub("_+", "_", name)                    # Collapse multiple "_"
+    name <- gsub("^_|_$", "", name)                  # Trim leading/trailing "_"
+    return(name)
+  }
+
   data_list <- list()
 
   for (file in files) {
@@ -37,7 +46,7 @@ read_files_from_path <- function(path, extensions = c("xlsx", "csv"), add_all_ta
 
     if (ext == "csv") {
       name <- file_base
-      if (clean) name <- gsub(" ", "_", name)
+      if (clean) name <- clean_name(name)
       data_list[[name]] <- read.csv(file, stringsAsFactors = FALSE)
 
     } else if (ext %in% c("xlsx", "xls")) {
@@ -45,12 +54,12 @@ read_files_from_path <- function(path, extensions = c("xlsx", "csv"), add_all_ta
         sheets <- excel_sheets(file)
         for (sheet in sheets) {
           name <- paste(file_base, sheet, sep = "_")
-          if (clean) name <- gsub(" ", "_", name)
+          if (clean) name <- clean_name(name)
           data_list[[name]] <- read_excel(file, sheet = sheet)
         }
       } else {
         name <- file_base
-        if (clean) name <- gsub(" ", "_", name)
+        if (clean) name <- clean_name(name)
         data_list[[name]] <- read_excel(file)
       }
 
