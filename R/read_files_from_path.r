@@ -55,7 +55,8 @@ read_files_from_path <- function(path, extensions = c("xlsx", "csv"), add_all_ta
         for (sheet in sheets) {
           name <- paste(file_base, sheet, sep = "_")
           if (clean) name <- clean_name(name)
-          data_list[[name]] <- read_excel(file, sheet = sheet)
+          data_list[[name]] <- read_excel(file, sheet = sheet, col_types = "text")
+          #data_list[[name]] <- read_excel(file, sheet = sheet)
         }
       } else {
         name <- file_base
